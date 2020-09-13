@@ -1,5 +1,4 @@
 <?php
-session_start();
 /**
  * ImmobilienScout24 PHP-SDK
  *  Nutzung der ImmobilienScout24 API per REST.
@@ -376,6 +375,70 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
 		$req->unset_parameter('username');
 		return parent::getContent($req,$sSecret);
 	}
+
+    /**
+     * Abfrage eines eigenen Projekten (Offer-API)
+     *
+     * @param array $aArgs
+     * @return mixed
+     */
+    private function _getUserProjects($aArgs)
+    {
+        $aRequired = array('username');
+        $oToken = null;
+        $sSecret = null;
+
+        if(!isset($aArgs['username'])) {
+            $aArgs['username'] = $this->_sDefaultUsername;
+        }
+
+        list($oToken, $sSecret) = $this->getApplicationTokenAndSecret($aArgs['username']);
+
+        if($oToken === NULL || $sSecret === NULL) {
+            return IMMOCASTER_SDK_LANG_APPLICATION_NOT_CERTIFIED;
+        }
+
+        $req = $this->doRequest(
+            'offer/v1.0/user/'.$aArgs['username'].'/realestateproject/',
+            $aArgs,
+            $aRequired,
+            __FUNCTION__,
+            $oToken
+        );
+
+        $req->unset_parameter('username');
+
+        return parent::getContent($req,$sSecret);
+    }
+
+    private function _getRealEstatesByProject($aArgs)
+    {
+        $aRequired = ['username', 'projectId'];
+        $oToken = null;
+        $sSecret = null;
+
+        if(!isset($aArgs['username'])) {
+            $aArgs['username'] = $this->_sDefaultUsername;
+        }
+
+        list($oToken, $sSecret) = $this->getApplicationTokenAndSecret($aArgs['username']);
+
+        if($oToken === NULL || $sSecret === NULL) {
+            return IMMOCASTER_SDK_LANG_APPLICATION_NOT_CERTIFIED;
+        }
+
+        $req = $this->doRequest(
+            'offer/v1.0/user/' . $aArgs['username'] . '/realestateproject/' . $aArgs['projectId'] . '/realestateprojectentry',
+            $aArgs,
+            $aRequired,
+            __FUNCTION__,
+            $oToken
+        );
+
+        $req->unset_parameter('username');
+
+        return parent::getContent($req,$sSecret);
+    }
 
 	/**
      * Impressum des Angebots anhand einer
@@ -1329,26 +1392,21 @@ class Immocaster_Immobilienscout_Rest extends Immocaster_Immobilienscout
      */
 	public function getAccess($aArgs)
 	{
-		try
-		{
+		try {
 			parent::requiredArgs($aArgs,array('verifyApplication'),' '.__FUNCTION__);
 			if($aArgs['verifyApplication']!=true){ return false; }
 		}
-		catch (Exception $e)
-		{
+		catch (Exception $e) {
 			echo $e->getMessage();
 		}
-		if(isset($_GET['state']) && isset($_GET['oauth_token']))
-		{
+		if(isset($_GET['state']) && isset($_GET['oauth_token'])) {
 			$aAccessToken = $this->registerAccess($aArgs);
 			if (is_array($aAccessToken)) {
 				return $aAccessToken;
 			}
 			elseif ($aAccessToken === false) return false;
 			else return true;
-		}
-		else
-		{
+		} else {
 			return $this->registerRequest($aArgs);
 		}
 	}

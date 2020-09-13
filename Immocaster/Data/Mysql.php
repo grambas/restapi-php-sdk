@@ -294,23 +294,24 @@ class Immocaster_Data_Mysql
 	 * @var string Secret
      * @return boolean
      */
-	public function saveApplicationToken($sToken,$sSecret,$sUser)
-	{
-		if(strlen($sToken)>8)
-		{
-			$sql = "INSERT INTO `".$this->_oDatabaseDb."`.`".$this->_sTableName."` (
+    public function saveApplicationToken($sToken,$sSecret,$sUser)
+    {
+        if(strlen($sToken)>8)
+        {
+            $sql = "INSERT INTO `".$this->_oDatabaseDb."`.`".$this->_sTableName."` (
 			`ic_desc`,`ic_key`,`ic_secret`,`ic_expire`,`ic_username`
 			) VALUES (
-			'APPLICATION','".$sToken."','".$sSecret."','0000-00-00 00:00:00.000000','".$sUser."'
+			'APPLICATION','".$sToken."','".$sSecret."','".date("Y-m-d H:i:s", strtotime ("+ 10 years"))."','".$sUser."'
 			);";
-			if(mysqli_query($this->_oDataConnection,$sql))
-			{
-				@$this->deleteRequestToken();
-				return true;
-			}
-		}
-		return false;
-	}
+            $test = mysqli_query($this->_oDataConnection,$sql);
+            if($test)
+            {
+                @$this->deleteRequestToken();
+                return true;
+            }
+        }
+        return false;
+    }
 
 	/**
      * Accesstoken für die Application

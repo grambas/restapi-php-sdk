@@ -105,7 +105,7 @@ class Immocaster_Sdk
 	{
 		if($this->_oService)
 		{
-			return $this->_oService->$method($args[0]);
+			return $this->_oService->$method($args[0] ?? []);
 		}
 		echo IMMOCASTER_SDK_LANG_NO_SERVICE_FOUND;
 		return false;

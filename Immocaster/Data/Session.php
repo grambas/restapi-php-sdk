@@ -49,7 +49,7 @@ class Immocaster_Data_Session
 	{
 		if(!isset($_SESSION))
 		{
-			session_start();
+//			session_start();
 		}
 		if($sNamespace!=null)
 		{
